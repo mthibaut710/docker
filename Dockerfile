@@ -12,3 +12,9 @@ EXPOSE 80
 
 # Démarre le serveur Apache en premier plan
 CMD ["apache2-foreground"]
+
+FROM php:8.2-apache
+
+RUN docker-php-ext-install pdo pdo_mysql
+
+COPY src/ /var/www/html/
