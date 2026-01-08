@@ -1,20 +1,22 @@
-version: '3'  # Spécifie la version du format de fichier Docker Compose. Ici, version 3.
+version: '3.8'
 
-services:  # Déclare les services qui seront créés. Chaque service correspond à un conteneur.
-
-  web:  # Définition du service "web", qui représente l'application web.
-    build: .  # Indique que l'image Docker pour ce service doit être construite à partir du Dockerfile situé dans le répertoire actuel.
-    ports:  
-      - "8080:80"  # Expose le port 80 du conteneur (généralement utilisé pour un serveur web) sur le port 8080 de la machine hôte.
-    volumes:
-      - .:/var/www/html  # Monte le répertoire courant (.) de la machine hôte dans le conteneur, dans le répertoire /var/www/html (généralement utilisé pour héberger les fichiers web).
-    depends_on:
-      - db  # Ce service "web" dépend du service "db", ce qui signifie qu'il sera lancé après que le conteneur "db" soit prêt.
-
-  db:  # Définition du service "db", qui représente une base de données MySQL.
-    image: mysql:5.7  # Utilise l'image officielle de MySQL version 5.7 pour créer le conteneur de base de données.
+services:
+  # Service de base de données
+  db:
+    image: mysql:8.0
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: exemple  # Définit le mot de passe pour l'utilisateur root de MySQL.
-      MYSQL_DATABASE: docker  # Crée une base de données nommée "docker" à l'initialisation.
+      MYSQL_DATABASE: mon_atelier
+      MYSQL_USER: user_atelier
+      MYSQL_PASSWORD: password_atelier
+      MYSQL_ROOT_PASSWORD: root_password
     volumes:
-      - ./db_init:/docker-entrypoint-initdb.d  # Monte le répertoire "db_init" de la machine hôte dans le conteneur pour y stocker des scripts d'initialisation de la base de données.
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Service Application PHP
+  app:
+    build: .
+    ports:
+      - "8081"
+    depends_on:
+      - db
